@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<meta name="theme-color" content="#0d0f1a" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="VocabQuest" />
+<title>VocabQuest — Cronograma</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0d0f1a; -webkit-tap-highlight-color: transparent; }
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(124,111,255,0.3); border-radius: 99px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+const SCHEDULE = [
+  { day:1,  level:'A1', theme:'Alfabeto',               type:'intro',   note:'26 palavras — leia cada uma em voz alta acompanhando o áudio' },
+  { day:2,  level:'A1', theme:'Alfabeto',               type:'praticar',note:'Atividades: Múltipla Escolha + Combine Pares' },
+  { day:3,  level:'A1', theme:'Números',                type:'intro',   note:'52 palavras — foque em ordinais e cardinais' },
+  { day:4,  level:'A1', theme:'Números',                type:'praticar',note:'Complete a Palavra + Múltipla Escolha' },
+  { day:5,  level:'A1', theme:'Dias da Semana',         type:'intro',   note:'7 palavras — memorize a sequência inteira' },
+  { day:6,  level:'A1', theme:'Meses do Ano',           type:'intro',   note:'12 palavras — compare com os nomes em português' },
+  { day:7,  level:'A1', theme:'Dias + Meses',           type:'praticar',note:'Pratique os dois juntos no modo misto' },
+  { day:8,  level:'A1', theme:'Estações e Clima',       type:'intro',   note:'15 palavras — visualize cada estação mentalmente' },
+  { day:9,  level:'A1', theme:'Cores',                  type:'intro',   note:'20 palavras — associe cada cor a um objeto do dia a dia' },
+  { day:10, level:'A1', theme:'Estações + Cores',       type:'praticar',note:'Combine Pares com os dois temas juntos' },
+  { day:11, level:'A1', theme:'🔄 REVISÃO A1 — Bloco 1',type:'revisao', note:'Alfabeto, Números, Dias, Meses, Estações, Cores' },
+  { day:12, level:'A1', theme:'Família e Amigos',       type:'intro',   note:'36 palavras — pense nos seus familiares enquanto lê' },
+  { day:13, level:'A1', theme:'Família e Amigos',       type:'praticar',note:'Todos os três modos de jogo' },
+  { day:14, level:'A1', theme:'Objetos do Dia a Dia',   type:'intro',   note:'25 palavras — olhe ao redor do quarto e nomeie' },
+  { day:15, level:'A1', theme:'Objetos do Dia a Dia',   type:'praticar',note:'Complete a Palavra' },
+  { day:16, level:'A1', theme:'Partes do Corpo',        type:'intro',   note:'25 palavras — aponte para cada parte ao ler' },
+  { day:17, level:'A1', theme:'Partes do Corpo',        type:'praticar',note:'Combine Pares' },
+  { day:18, level:'A1', theme:'Casa e Mobília',         type:'intro',   note:'29 palavras — visualize cada cômodo da sua casa' },
+  { day:19, level:'A1', theme:'Casa e Mobília',         type:'praticar',note:'Todos os modos' },
+  { day:20, level:'A1', theme:'🔄 REVISÃO GERAL A1',   type:'revisao', note:'Todos os 10 temas — modo misto completo' },
+  { day:21, level:'A2', theme:'Rotina Diária',          type:'intro',   note:'40 palavras — descreva sua rotina mentalmente em inglês' },
+  { day:22, level:'A2', theme:'Rotina Diária',          type:'praticar',note:'Complete a Palavra' },
+  { day:23, level:'A2', theme:'Compras',                type:'intro',   note:'40 palavras — imagine fazer compras em inglês' },
+  { day:24, level:'A2', theme:'Compras',                type:'praticar',note:'Múltipla Escolha + Combine Pares' },
+  { day:25, level:'A2', theme:'Roupas',                 type:'intro',   note:'40 palavras — nomeie o que está vestindo agora' },
+  { day:26, level:'A2', theme:'Roupas',                 type:'praticar',note:'Todos os modos' },
+  { day:27, level:'A2', theme:'🔄 REVISÃO A2 — Bloco 1',type:'revisao',note:'Rotina Diária, Compras, Roupas' },
+  { day:28, level:'A2', theme:'Viagens',                type:'intro',   note:'40 palavras — imagine uma viagem internacional' },
+  { day:29, level:'A2', theme:'Viagens',                type:'praticar',note:'Modo misto' },
+  { day:30, level:'A2', theme:'Transportes',            type:'intro',   note:'40 palavras — pense no seu trajeto diário' },
+  { day:31, level:'A2', theme:'Transportes',            type:'praticar',note:'Combine Pares' },
+  { day:32, level:'A2', theme:'Clima e Tempo',          type:'intro',   note:'40 palavras — relacione com o clima de Maceió' },
+  { day:33, level:'A2', theme:'Clima e Tempo',          type:'praticar',note:'Todos os modos' },
+  { day:34, level:'A2', theme:'🔄 REVISÃO A2 — Bloco 2',type:'revisao',note:'Viagens, Transportes, Clima e Tempo' },
+  { day:35, level:'A2', theme:'Saúde',                  type:'intro',   note:'40 palavras — vocabulário essencial para viagens e vida' },
+  { day:36, level:'A2', theme:'Saúde',                  type:'praticar',note:'Múltipla Escolha' },
+  { day:37, level:'A2', theme:'Educação',               type:'intro',   note:'40 palavras — conecte com seu contexto de pós-graduação' },
+  { day:38, level:'A2', theme:'Educação',               type:'praticar',note:'Complete a Palavra' },
+  { day:39, level:'A2', theme:'Trabalho',               type:'intro',   note:'40 palavras — vocabulário profissional e administrativo' },
+  { day:40, level:'A2', theme:'Trabalho',               type:'praticar',note:'Todos os modos' },
+  { day:41, level:'A2', theme:'🔄 REVISÃO A2 — Bloco 3',type:'revisao',note:'Saúde, Educação, Trabalho' },
+  { day:42, level:'A2', theme:'Atividades de Lazer',    type:'intro',   note:'40 palavras — seus hobbies em inglês' },
+  { day:43, level:'A2', theme:'Atividades de Lazer',    type:'praticar',note:'Combine Pares' },
+  { day:44, level:'A2', theme:'Lugares da Cidade',      type:'intro',   note:'40 palavras — imagine Maceió em inglês' },
+  { day:45, level:'A2', theme:'Lugares da Cidade',      type:'praticar',note:'Todos os modos' },
+  { day:46, level:'A2', theme:'Personalidade',          type:'intro',   note:'40 palavras — descreva pessoas que você conhece' },
+  { day:47, level:'A2', theme:'Personalidade',          type:'praticar',note:'Múltipla Escolha' },
+  { day:48, level:'A2', theme:'Sentimentos',            type:'intro',   note:'40 palavras — conecte com emoções reais que já sentiu' },
+  { day:49, level:'A2', theme:'Sentimentos',            type:'praticar',note:'Complete a Palavra + Combine Pares' },
+  { day:50, level:'A2', theme:'🔄 REVISÃO GERAL A2',   type:'revisao', note:'Todos os 13 temas do A2 — modo misto completo' },
+  { day:51, level:'B1', theme:'Esporte e Fitness',      type:'intro',   note:'50 palavras — relacione com sua rotina de exercícios' },
+  { day:52, level:'B1', theme:'Esporte e Fitness',      type:'praticar',note:'Modo misto' },
+  { day:53, level:'B1', theme:'Carreira Avançada',      type:'intro',   note:'41 palavras — vocabulário para área de gestão' },
+  { day:54, level:'B1', theme:'Carreira Avançada',      type:'praticar',note:'Complete a Palavra' },
+  { day:55, level:'B1', theme:'Tecnologia',             type:'intro',   note:'40 palavras — área do seu projeto SaaS' },
+  { day:56, level:'B1', theme:'Tecnologia',             type:'praticar',note:'Todos os modos' },
+  { day:57, level:'B1', theme:'🔄 REVISÃO B1 — Bloco 1',type:'revisao',note:'Esporte, Carreira Avançada, Tecnologia' },
+  { day:58, level:'B1', theme:'Notícias e Mídia',       type:'intro',   note:'40 palavras — leia uma notícia em inglês após a sessão' },
+  { day:59, level:'B1', theme:'Notícias e Mídia',       type:'praticar',note:'Múltipla Escolha' },
+  { day:60, level:'B1', theme:'Expressões de Tempo',    type:'intro',   note:'40 palavras — use em frases do dia a dia' },
+  { day:61, level:'B1', theme:'Expressões de Tempo',    type:'praticar',note:'Complete a Palavra' },
+  { day:62, level:'B1', theme:'Phrasal Verbs — pt. 1', type:'intro',   note:'95 palavras — estude os primeiros 48 hoje (mais comuns)' },
+  { day:63, level:'B1', theme:'Phrasal Verbs — pt. 2', type:'intro',   note:'95 palavras — estude os outros 47 hoje' },
+  { day:64, level:'B1', theme:'Phrasal Verbs',          type:'praticar',note:'Todos os modos — categoria mais importante do B1!' },
+  { day:65, level:'B1', theme:'🔄 REVISÃO GERAL B1',   type:'revisao', note:'Todos os 6 temas do B1 — modo misto' },
+  { day:66, level:'B2', theme:'Negócios e Economia',    type:'intro',   note:'40 palavras — conecte com Gestão Financeira da pós' },
+  { day:67, level:'B2', theme:'Negócios e Economia',    type:'praticar',note:'Complete a Palavra' },
+  { day:68, level:'B2', theme:'Crime e Justiça',        type:'intro',   note:'41 palavras — relevante para concursos públicos' },
+  { day:69, level:'B2', theme:'Crime e Justiça',        type:'praticar',note:'Múltipla Escolha' },
+  { day:70, level:'B2', theme:'Redes Sociais',          type:'intro',   note:'40 palavras — já usa no dia a dia, contexto familiar' },
+  { day:71, level:'B2', theme:'Redes Sociais',          type:'praticar',note:'Combine Pares' },
+  { day:72, level:'B2', theme:'🔄 REVISÃO B2 — Bloco 1',type:'revisao',note:'Negócios, Crime e Justiça, Redes Sociais' },
+  { day:73, level:'B2', theme:'Idioms',                 type:'intro',   note:'40 palavras — expressões que nativos usam todo dia' },
+  { day:74, level:'B2', theme:'Idioms',                 type:'praticar',note:'Todos os modos' },
+  { day:75, level:'B2', theme:'Collocations',           type:'intro',   note:'40 palavras — combinações naturais de palavras' },
+  { day:76, level:'B2', theme:'Collocations',           type:'praticar',note:'Complete a Palavra' },
+  { day:77, level:'B2', theme:'Prefixos e Sufixos',     type:'intro',   note:'40 palavras — aprenda a decodificar palavras novas sozinho' },
+  { day:78, level:'B2', theme:'Prefixos e Sufixos',     type:'praticar',note:'Todos os modos' },
+  { day:79, level:'B2', theme:'Questões Globais',       type:'intro',   note:'40 palavras — vocabulário para debates e redações' },
+  { day:80, level:'B2', theme:'Questões Globais',       type:'praticar',note:'Múltipla Escolha' },
+  { day:81, level:'B2', theme:'🔄 REVISÃO GERAL B2',   type:'revisao', note:'Todos os 7 temas do B2 — modo misto' },
+  { day:82, level:'C1', theme:'Inglês Acadêmico e Formal',type:'intro', note:'40 palavras — essencial para textos e e-mails formais' },
+  { day:83, level:'C1', theme:'Inglês Acadêmico e Formal',type:'praticar',note:'Complete a Palavra' },
+  { day:84, level:'C1', theme:'Sinônimos Avançados',    type:'intro',   note:'40 palavras — enriqueça seu vocabulário ativo' },
+  { day:85, level:'C1', theme:'Sinônimos Avançados',    type:'praticar',note:'Combine Pares' },
+  { day:86, level:'C1', theme:'Debate e Argumentação',  type:'intro',   note:'40 palavras — para discussões e apresentações avançadas' },
+  { day:87, level:'C1', theme:'Debate e Argumentação',  type:'praticar',note:'Todos os modos' },
+  { day:88, level:'C1', theme:'🔄 REVISÃO C1 — Bloco 1',type:'revisao',note:'Inglês Acadêmico, Sinônimos, Debate' },
+  { day:89, level:'C1', theme:'Humor, Ironia e Sarcasmo',type:'intro',  note:'40 palavras — compreensão cultural avançada' },
+  { day:90, level:'C1', theme:'Humor, Ironia e Sarcasmo',type:'praticar',note:'Múltipla Escolha' },
+  { day:91, level:'C1', theme:'Literatura',             type:'intro',   note:'40 palavras — vocabulário literário clássico' },
+  { day:92, level:'C1', theme:'Literatura',             type:'praticar',note:'Combine Pares' },
+  { day:93, level:'C1', theme:'Ciência',                type:'intro',   note:'40 palavras — vocabulário científico e técnico' },
+  { day:94, level:'C1', theme:'Ciência',                type:'praticar',note:'Complete a Palavra' },
+  { day:95, level:'C1', theme:'Hardware e Software',    type:'intro',   note:'40 palavras — fundamental para área de tech' },
+  { day:96, level:'C1', theme:'Hardware e Software',    type:'praticar',note:'Todos os modos' },
+  { day:97, level:'C1', theme:'Programação',            type:'intro',   note:'40 palavras — vocabulário do seu futuro SaaS' },
+  { day:98, level:'C1', theme:'Programação',            type:'praticar',note:'Todos os modos' },
+  { day:99, level:'C1', theme:'🔄 REVISÃO GERAL C1',   type:'revisao', note:'Todos os 8 temas do C1 — modo misto' },
+  { day:100,level:'🏆', theme:'🎉 REVISÃO TOTAL A1→C1', type:'revisao', note:'Você chegou ao topo! 100 dias de dedicação!' },
+];
+
+const LEVEL_COLORS = {
+  A1:  { primary:'#22c55e', glow:'rgba(34,197,94,0.2)',   label:'A1 — INICIANTE' },
+  A2:  { primary:'#eab308', glow:'rgba(234,179,8,0.2)',   label:'A2 — BÁSICO/INTERMEDIÁRIO' },
+  B1:  { primary:'#3b82f6', glow:'rgba(59,130,246,0.2)',  label:'B1 — INTERMEDIÁRIO' },
+  B2:  { primary:'#a855f7', glow:'rgba(168,85,247,0.2)',  label:'B2 — INTERMEDIÁRIO AVANÇADO' },
+  C1:  { primary:'#ef4444', glow:'rgba(239,68,68,0.2)',   label:'C1 — AVANÇADO' },
+  '🏆':{ primary:'#f59e0b', glow:'rgba(245,158,11,0.3)', label:'CONCLUSÃO' },
+};
+
+const TYPE_CONFIG = {
+  intro:   { label:'Introdução', icon:'📖', bg:'rgba(59,130,246,0.12)',  border:'rgba(59,130,246,0.3)',  color:'#93c5fd' },
+  praticar:{ label:'Praticar',   icon:'🎯', bg:'rgba(34,197,94,0.12)',   border:'rgba(34,197,94,0.3)',   color:'#86efac' },
+  revisao: { label:'Revisão',    icon:'🔄', bg:'rgba(245,158,11,0.12)',  border:'rgba(245,158,11,0.3)',  color:'#fcd34d' },
+};
+
+const TIPS = [
+  { icon:'🗣️', title:'Fale em Voz Alta',    desc:'Ao ler cada palavra, pronuncie em voz alta. A vocalização ativa mais regiões do cérebro e fixa a memória 40% mais rápido.' },
+  { icon:'🖼️', title:'Crie uma Imagem Mental',desc:'Para palavras difíceis, invente uma cena visual absurda. O cérebro memoriza imagens muito mais que texto puro.' },
+  { icon:'🔗', title:'Associe ao Português', desc:'Procure cognatos (palavras parecidas). "Hospital" em inglês é "hospital". Esses ganchos são atalhos gratuitos para a memória.' },
+  { icon:'✍️', title:'Use em uma Frase',     desc:'Depois da sessão, escreva 3 frases com palavras novas. Contexto é o que transforma vocabulário passivo em ativo.' },
+  { icon:'🎧', title:'Áudio é Obrigatório',  desc:'Sempre ouça o áudio. A memória auditiva reforça a visual. Você vai "ouvir" a palavra na mente ao ler, e isso acelera a fluência.' },
+  { icon:'⏰', title:'Consistência > Intensidade',desc:'10 min todos os dias superam 2h uma vez por semana. O sono consolida o que foi aprendido — cada dia é uma sessão de fixação.' },
+];
+
+function App() {
+  const [completed, setCompleted] = useState({});
+  const [activeTab, setActiveTab] = useState('schedule');
+  const [filterLevel, setFilterLevel] = useState('ALL');
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('vq-sched-v1');
+      if (saved) setCompleted(JSON.parse(saved));
+    } catch(e) {}
+  }, []);
+
+  function toggleDay(day) {
+    const updated = { ...completed, [day]: !completed[day] };
+    setCompleted(updated);
+    try { localStorage.setItem('vq-sched-v1', JSON.stringify(updated)); } catch(e) {}
+  }
+
+  const totalDays = SCHEDULE.length;
+  const completedCount = Object.values(completed).filter(Boolean).length;
+  const pct = Math.round((completedCount / totalDays) * 100);
+  const nextDay = SCHEDULE.find(d => !completed[d.day]);
+  const levels = ['ALL','A1','A2','B1','B2','C1'];
+
+  const filtered = filterLevel === 'ALL' ? SCHEDULE : SCHEDULE.filter(d => d.level === filterLevel);
+  const grouped = {};
+  filtered.forEach(d => { if (!grouped[d.level]) grouped[d.level] = []; grouped[d.level].push(d); });
+
+  return (
+    <div style={{ background:'#0d0f1a', minHeight:'100vh', fontFamily:"'Segoe UI',system-ui,sans-serif", color:'#e2e8f0', paddingBottom:48 }}>
+
+      {/* HEADER */}
+      <div style={{ background:'linear-gradient(135deg,#1a1033 0%,#0d1a33 50%,#0d0f1a 100%)', padding:'28px 16px 16px', borderBottom:'1px solid rgba(124,111,255,0.2)', position:'sticky', top:0, zIndex:100 }}>
+        <div style={{ maxWidth:480, margin:'0 auto' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:12 }}>
+            <div style={{ width:36, height:36, background:'linear-gradient(135deg,#7c6fff,#a855f7)', borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center', fontSize:18, boxShadow:'0 0 16px rgba(124,111,255,0.4)' }}>📚</div>
+            <div>
+              <div style={{ fontSize:17, fontWeight:700, color:'#fff' }}>VocabQuest — Cronograma</div>
+              <div style={{ fontSize:11, color:'#7c6fff', letterSpacing:1, textTransform:'uppercase' }}>Plano 100 dias · 10 min/dia</div>
+            </div>
+          </div>
+
+          <div style={{ marginBottom:12 }}>
+            <div style={{ display:'flex', justifyContent:'space-between', marginBottom:5 }}>
+              <span style={{ fontSize:12, color:'#94a3b8' }}>Progresso geral</span>
+              <span style={{ fontSize:12, color:'#7c6fff', fontWeight:700 }}>{completedCount}/{totalDays} — {pct}%</span>
+            </div>
+            <div style={{ background:'rgba(255,255,255,0.08)', borderRadius:99, height:7, overflow:'hidden' }}>
+              <div style={{ height:'100%', width:`${pct}%`, background:'linear-gradient(90deg,#7c6fff,#a855f7)', borderRadius:99, transition:'width 0.4s', boxShadow:'0 0 10px rgba(124,111,255,0.5)' }} />
+            </div>
+          </div>
+
+          <div style={{ display:'flex', gap:6 }}>
+            {[['schedule','📅 Cronograma'],['method','🧠 Método'],['tips','💡 Técnicas']].map(([id,label]) => (
+              <button key={id} onClick={() => setActiveTab(id)} style={{ flex:1, padding:'8px 4px', borderRadius:10, border: activeTab===id ? '1px solid rgba(124,111,255,0.5)' : '1px solid rgba(255,255,255,0.08)', background: activeTab===id ? 'rgba(124,111,255,0.2)' : 'rgba(255,255,255,0.04)', color: activeTab===id ? '#a78bfa' : '#64748b', fontSize:12, fontWeight: activeTab===id ? 700 : 400, cursor:'pointer' }}>{label}</button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div style={{ maxWidth:480, margin:'0 auto', padding:'0 14px' }}>
+
+        {/* ===== SCHEDULE ===== */}
+        {activeTab === 'schedule' && (
+          <div>
+            {nextDay && (
+              <div style={{ margin:'14px 0 4px', padding:'14px', background:'linear-gradient(135deg,rgba(124,111,255,0.2),rgba(168,85,247,0.15))', border:'1px solid rgba(124,111,255,0.4)', borderRadius:14, display:'flex', alignItems:'center', gap:12 }}>
+                <div style={{ width:42, height:42, background:'linear-gradient(135deg,#7c6fff,#a855f7)', borderRadius:12, display:'flex', alignItems:'center', justifyContent:'center', fontSize:20, flexShrink:0, boxShadow:'0 0 16px rgba(124,111,255,0.5)' }}>▶️</div>
+                <div>
+                  <div style={{ fontSize:10, color:'#a78bfa', textTransform:'uppercase', letterSpacing:1, marginBottom:2 }}>Próxima sessão · Dia {nextDay.day}</div>
+                  <div style={{ fontSize:15, fontWeight:700, color:'#fff' }}>{nextDay.theme}</div>
+                  <div style={{ fontSize:12, color:'#94a3b8' }}>{TYPE_CONFIG[nextDay.type].icon} {TYPE_CONFIG[nextDay.type].label} · {LEVEL_COLORS[nextDay.level]?.label || nextDay.level}</div>
+                </div>
+              </div>
+            )}
+
+            <div style={{ display:'flex', gap:6, marginTop:14, marginBottom:8, overflowX:'auto', paddingBottom:4 }}>
+              {levels.map(lvl => {
+                const col = lvl==='ALL' ? '#7c6fff' : LEVEL_COLORS[lvl]?.primary || '#fff';
+                return (
+                  <button key={lvl} onClick={() => setFilterLevel(lvl)} style={{ flexShrink:0, padding:'5px 12px', borderRadius:99, border: filterLevel===lvl ? `1.5px solid ${col}` : '1.5px solid rgba(255,255,255,0.1)', background: filterLevel===lvl ? `${col}22` : 'transparent', color: filterLevel===lvl ? col : '#64748b', fontSize:12, fontWeight: filterLevel===lvl ? 700 : 400, cursor:'pointer' }}>{lvl}</button>
+                );
+              })}
+            </div>
+
+            {Object.entries(grouped).map(([level, days]) => {
+              const lc = LEVEL_COLORS[level] || LEVEL_COLORS['🏆'];
+              const doneCount = days.filter(d => completed[d.day]).length;
+              return (
+                <div key={level} style={{ marginBottom:20 }}>
+                  <div style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 14px', background:lc.glow, border:`1px solid ${lc.primary}44`, borderRadius:'12px 12px 0 0' }}>
+                    <div style={{ width:10, height:10, borderRadius:'50%', background:lc.primary, boxShadow:`0 0 8px ${lc.primary}` }} />
+                    <span style={{ fontSize:13, fontWeight:700, color:lc.primary }}>{lc.label || level}</span>
+                    <span style={{ marginLeft:'auto', fontSize:11, color:'#64748b' }}>{doneCount}/{days.length}</span>
+                  </div>
+                  {days.map((d, i) => {
+                    const done = !!completed[d.day];
+                    const tc = TYPE_CONFIG[d.type];
+                    const isNext = nextDay?.day === d.day;
+                    return (
+                      <div key={d.day} onClick={() => toggleDay(d.day)} style={{ display:'flex', alignItems:'flex-start', gap:12, padding:'12px 14px', background: done ? 'rgba(34,197,94,0.06)' : isNext ? 'rgba(124,111,255,0.08)' : 'rgba(255,255,255,0.025)', border:`1px solid ${isNext ? 'rgba(124,111,255,0.3)' : done ? 'rgba(34,197,94,0.15)' : 'rgba(255,255,255,0.06)'}`, borderRadius: i===days.length-1 ? '0 0 12px 12px' : 0, borderTop: i===0 ? 'none' : undefined, cursor:'pointer', marginBottom: i<days.length-1 ? 1 : 0 }}>
+                        <div style={{ width:22, height:22, borderRadius:7, border: done ? 'none' : '2px solid rgba(255,255,255,0.2)', background: done ? '#22c55e' : 'transparent', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, marginTop:2, fontSize:12, transition:'all 0.2s', boxShadow: done ? '0 0 8px rgba(34,197,94,0.4)' : 'none', color:'#fff', fontWeight:700 }}>{done && '✓'}</div>
+                        <div style={{ flex:1 }}>
+                          <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:3 }}>
+                            <span style={{ fontSize:10, color:'#475569', fontWeight:600 }}>DIA {d.day}</span>
+                            <span style={{ fontSize:10, padding:'1px 7px', borderRadius:99, background:tc.bg, border:`1px solid ${tc.border}`, color:tc.color, fontWeight:600 }}>{tc.icon} {tc.label}</span>
+                          </div>
+                          <div style={{ fontSize:14, fontWeight: d.type==='revisao' ? 700 : 600, color: done ? '#64748b' : d.type==='revisao' ? '#fcd34d' : '#e2e8f0', textDecoration: done ? 'line-through' : 'none', marginBottom:3 }}>{d.theme}</div>
+                          <div style={{ fontSize:11, color:'#475569', lineHeight:1.4 }}>{d.note}</div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* ===== METHOD ===== */}
+        {activeTab === 'method' && (
+          <div style={{ paddingTop:16 }}>
+            <div style={{ padding:16, background:'linear-gradient(135deg,rgba(124,111,255,0.15),rgba(168,85,247,0.1))', border:'1px solid rgba(124,111,255,0.3)', borderRadius:16, marginBottom:14 }}>
+              <div style={{ fontSize:13, color:'#a78bfa', fontWeight:700, marginBottom:6 }}>🧠 MÉTODO R.E.P.</div>
+              <div style={{ fontSize:13, color:'#94a3b8', lineHeight:1.6 }}>Cada tema passa por 3 fases para ir da memória de curto prazo para a de longo prazo. Seguindo o cronograma, esse processo acontece automaticamente.</div>
+            </div>
+            {[
+              { step:'R', color:'#3b82f6', label:'RECONHECER',  subtitle:'Dia de Introdução — 10 min', icon:'📖', items:['Abra apenas o tema do dia no app','Leia cada palavra + tradução sem pressa','Ouça o áudio de TODAS as palavras','NÃO tente memorizar ainda — apenas se exponha','Ao final, tente lembrar 3 palavras de cabeça'] },
+              { step:'E', color:'#22c55e', label:'EXERCITAR',    subtitle:'Dia de Prática — 10 min', icon:'🎯', items:['Faça as atividades indicadas no cronograma','Se errar, reveja a palavra antes de continuar','Use os 3 modos: Múltipla Escolha → Complete → Pares','Tente escrever 2 frases usando palavras novas','Antes de dormir, tente lembrar 5 palavras'] },
+              { step:'P', color:'#f59e0b', label:'PERSISTIR',    subtitle:'Dias de Revisão — 10 min', icon:'🔄', items:['Revise os temas do bloco em modo misto','Foque mais tempo nas palavras que esqueceu','A revisão espaçada é o que faz a palavra NUNCA sair','Cada revisão dobra o tempo que você vai lembrar','Não pule os dias de revisão — são os mais valiosos'] },
+            ].map(({ step, color, label, subtitle, icon, items }) => (
+              <div key={step} style={{ marginBottom:12, border:`1px solid ${color}33`, borderRadius:14, overflow:'hidden' }}>
+                <div style={{ display:'flex', alignItems:'center', gap:12, padding:'14px 16px', background:`${color}18` }}>
+                  <div style={{ width:38, height:38, borderRadius:12, background:color, display:'flex', alignItems:'center', justifyContent:'center', fontSize:20, flexShrink:0, boxShadow:`0 0 12px ${color}55` }}>{icon}</div>
+                  <div>
+                    <div style={{ fontSize:15, fontWeight:800, color }}>{step} — {label}</div>
+                    <div style={{ fontSize:11, color:'#64748b' }}>{subtitle}</div>
+                  </div>
+                </div>
+                <div style={{ padding:'12px 16px' }}>
+                  {items.map((item, i) => (
+                    <div key={i} style={{ display:'flex', gap:10, marginBottom: i<items.length-1 ? 8 : 0 }}>
+                      <div style={{ width:20, height:20, borderRadius:'50%', background:`${color}22`, border:`1px solid ${color}44`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:10, color, fontWeight:700, flexShrink:0 }}>{i+1}</div>
+                      <div style={{ fontSize:13, color:'#94a3b8', lineHeight:1.5 }}>{item}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+            <div style={{ padding:16, background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:14 }}>
+              <div style={{ fontSize:13, fontWeight:700, color:'#e2e8f0', marginBottom:8 }}>⚡ Por que 10 min funciona?</div>
+              <div style={{ fontSize:13, color:'#64748b', lineHeight:1.7 }}>O cérebro consolida memórias durante o <span style={{ color:'#a78bfa' }}>sono</span>. Cada sessão diária de 10 min planta uma semente. Enquanto você dorme, o hipocampo move essas informações para a memória de longo prazo. No dia seguinte, a revisão rega essa semente. Após 3 revisões espaçadas, a palavra fica permanente. Esse processo se chama <span style={{ color:'#a78bfa' }}>Consolidação Mnêmica</span>.</div>
+            </div>
+          </div>
+        )}
+
+        {/* ===== TIPS ===== */}
+        {activeTab === 'tips' && (
+          <div style={{ paddingTop:16 }}>
+            {TIPS.map((tip, i) => (
+              <div key={i} style={{ marginBottom:10, padding:16, background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:14, display:'flex', gap:14 }}>
+                <div style={{ width:44, height:44, background:'rgba(124,111,255,0.15)', borderRadius:12, display:'flex', alignItems:'center', justifyContent:'center', fontSize:22, flexShrink:0, border:'1px solid rgba(124,111,255,0.2)' }}>{tip.icon}</div>
+                <div>
+                  <div style={{ fontSize:14, fontWeight:700, color:'#e2e8f0', marginBottom:5 }}>{tip.title}</div>
+                  <div style={{ fontSize:13, color:'#64748b', lineHeight:1.6 }}>{tip.desc}</div>
+                </div>
+              </div>
+            ))}
+            <div style={{ marginTop:20, textAlign:'center' }}>
+              <button onClick={() => { if(window.confirm('Apagar todo o progresso?')) { setCompleted({}); localStorage.removeItem('vq-sched-v1'); } }} style={{ padding:'10px 24px', borderRadius:10, border:'1px solid rgba(239,68,68,0.3)', background:'rgba(239,68,68,0.08)', color:'#f87171', fontSize:13, cursor:'pointer' }}>🗑️ Resetar progresso</button>
+            </div>
+          </div>
+        )}
+
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
